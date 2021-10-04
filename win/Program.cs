@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace DataShardPort
 {
@@ -12,13 +13,16 @@ namespace DataShardPort
         [STAThread]
         static void Main()
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             while (true)
             {
                 var shards = DriveInfo.GetDrives().Where(drive => drive.IsReady && drive.DriveType == DriveType.Removable);
 
                 foreach (DriveInfo shard in shards)
                 {
-                    if (shard.DriveType.ToString() == "Removable")
+                    if (shard.DriveType.ToString() == "Removable" && File.Exists(shard.RootDirectory + "_"))
                     {
                         string[] lines = File.ReadAllText(shard.RootDirectory + "_").Split('\n');
                         foreach (string line in lines)
@@ -63,8 +67,15 @@ namespace DataShardPort
                             }
                         }
 
-                        showContents nw = new showContents(shard);
-                        nw.ShowDialog();
+                        int screens = Screen.AllScreens.Length;
+                        showContents[] forms = new showContents[screens];
+
+                        for (int i = 0; i < screens; i++)
+                        {
+                            forms[i] = new showContents(shard, i);
+                        }
+
+                        Application.Run(new MultiFormContext(forms));
                     }
                 }
                 Thread.Sleep(500);

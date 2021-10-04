@@ -15,8 +15,9 @@ namespace DataShardPort
     public partial class showContents : Form
     {
         private DriveInfo shard;
-        public showContents(DriveInfo shard)
+        public showContents(DriveInfo shard, int screenId)
         {
+            this.Location = Screen.AllScreens[screenId].WorkingArea.Location;
             this.shard = shard;
             InitializeComponent();
         }
